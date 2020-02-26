@@ -1,0 +1,52 @@
+---
+title: "nes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library("rstanarm")
+```
+
+```{r}
+# loads table into `nes`
+load(file = "nes.rda")
+
+nes <- nes %>%
+  select(year,
+         partyid7,
+         real_ideo,
+         race_adj,
+         age_discrete,
+         educ1,
+         female,
+         income
+  )
+```
+
+```{r}
+# plot female votes vs male votes (dem v rep)
+nes %>%
+  group_by(year, age_discrete) %>%
+  summarize(total_voters = n()) %>%
+  ggplot(aes(x = year, y = total_voters, color = age_discrete)) +
+  geom_point()
+```
+```{r}
+nes %>%
+  filter(!is.na(real_ideo)) %>%
+  group_by(year, real_ideo) %>%
+  summarize(total_voters = n()) %>%
+  ggplot(aes(x = year, y = total_voters, color = factor(real_ideo))) +
+  geom_line() +
+  geom_point()
+```
+```{r}
+fit <- stan_glm(partyid7 ~ female, data = nes, refresh = 0)
+print(fit)
+```
+```{r}
+
+```
