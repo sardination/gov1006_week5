@@ -48,5 +48,34 @@ fit <- stan_glm(partyid7 ~ female, data = nes, refresh = 0)
 print(fit)
 ```
 ```{r}
+a <- fit$coefficients[1]
+b <- fit$coefficients[2]
+sigma <- sigma(fit)
+x <- nes$female
+n <- length(x)
 
+n_fake <- 100
+cover_68 <- rep(NA, n_fake)
+cover_95 <- rep(NA, n_fake)
+for (s in 1:n_fake) {
+  y <- a + b * x + rnorm(n, 0, sigma)
+  fake <- data.frame(x, y)
+  fake_fit <- stan_glm(y ~ x, data=fake, refresh = 0)
+  b_hat <- coef(fake_fit)["x"]
+  b_se <- se(fake_fit)["x"]
+  cover_68[s] <- abs(b - b_hat) < b_se
+  cover_95[s] <- abs(b - b_hat) < 2 * b_se
+}
+coverage_68 <- mean(cover_68)
+coverage_95 <- mean(cover_95)
+```
+
+```{r}
+nes_factored <- nes %>%
+  mutate(race = factor(race_adj,
+    levels = c(1, 1.5, 2),
+    labels = c("white", "other", "black")
+  ))
+
+fit <- stan_glm(partyid7 ~ race, data = nes_factored, refresh = 0)
 ```
