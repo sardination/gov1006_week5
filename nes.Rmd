@@ -77,5 +77,11 @@ nes_factored <- nes %>%
     labels = c("white", "other", "black")
   ))
 
-fit <- stan_glm(partyid7 ~ race, data = nes_factored, refresh = 0)
+race_fit <- stan_glm(partyid7 ~ race, data = nes_factored, refresh = 0)
 ```
+
+```{r}
+
+```
+
+
